@@ -61,6 +61,12 @@ class TestGithubOrgClient(unittest.TestCase):
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
+    def test_has_license_missing_key(self):
+        """Test has_license handles repos without a license key"""
+        repo = {"name": "repo-no-license"}
+        result = GithubOrgClient.has_license(repo, "apache-2.0")
+        self.assertFalse(result)
+
 
 # Simplified test payload for integration tests
 TEST_PAYLOAD = [(
@@ -88,22 +94,22 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Set up class with mocked requests.get"""
         cls.get_patcher = patch('client.requests.get')
         cls.mock_get = cls.get_patcher.start()
-        
+
         # Create mock responses
         cls.org_response = Mock()
         cls.org_response.json.return_value = cls.org_payload
-        
+
         cls.repos_response = Mock()
         cls.repos_response.json.return_value = cls.repos_payload
-        
-        # Set up side effect to return different responses for different URLs
+
+        # Strict side effect based on full URL
         def side_effect(url):
-            if "orgs/google" in url:
+            if url == "https://api.github.com/orgs/google":
                 return cls.org_response
-            elif "repos" in url:
+            elif url == "https://api.github.com/orgs/google/repos":
                 return cls.repos_response
             return Mock()
-            
+
         cls.mock_get.side_effect = side_effect
 
     @classmethod
@@ -111,14 +117,14 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Stop the patcher"""
         cls.get_patcher.stop()
 
-    def test_public_repos(self):
+    def test_integration_public_repos(self):
         """Integration test for public_repos without license filter"""
         client = GithubOrgClient("google")
         result = client.public_repos()
         self.assertEqual(result, self.expected_repos)
         self.assertEqual(self.mock_get.call_count, 2)
 
-    def test_public_repos_with_license(self):
+    def test_integration_public_repos_with_license(self):
         """Integration test for public_repos with license filter"""
         client = GithubOrgClient("google")
         result = client.public_repos(license="apache-2.0")
