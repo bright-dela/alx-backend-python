@@ -9,7 +9,7 @@ from parameterized import parameterized, parameterized_class
 from unittest.mock import patch, PropertyMock, Mock
 from client import GithubOrgClient
 
-
+# Import the TEST_PAYLOAD directly instead of the whole fixtures module
 TEST_PAYLOAD = [
     (
         {"repos_url": "https://api.github.com/orgs/google/repos"},
