@@ -38,7 +38,8 @@ class TestGetJson(unittest.TestCase):
     ])
     @patch('utils.requests.get')
     def test_get_json(self, test_url, test_payload, mock_get):
-        """Test get_json returns expected result without making actual HTTP calls
+        """Test get_json returns expected result
+        without making actual HTTP calls
         """
         mock_response = Mock()
         mock_response.json.return_value = test_payload
@@ -63,7 +64,7 @@ class TestMemoize(unittest.TestCase):
                 return self.a_method()
 
         with patch.object(TestClass, 'a_method',
-                         return_value=42) as mock_method:
+                          return_value=42) as mock_method:
             test_instance = TestClass()
             result1 = test_instance.a_property
             result2 = test_instance.a_property
